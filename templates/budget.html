@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Budget - {{ trip.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">{{ trip.name }}</a>
+        <span class="separator">/</span>
+        <span>Budget</span>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Budget Tracker</h2>
+
+    <!-- Secondary Navigation -->
+    <div class="trip-nav">
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">Itinerary</a>
+        <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}">Builder</a>
+        <a href="{{ url_for('features.budget', trip_id=trip.id) }}" class="active">Budget</a>
+        <a href="{{ url_for('features.checklist', trip_id=trip.id) }}">Checklist</a>
+        <a href="{{ url_for('features.notes', trip_id=trip.id) }}">Notes</a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Total Spent</p>
+            <h3 style="font-size: 1.8rem; color: var(--primary);">${{ "%.2f"|format(trip.expenses|sum(attribute='amount')) }}</h3>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Expenses</p>
+            <h3 style="font-size: 1.8rem;">{{ trip.expenses|length }}</h3>
+        </div>
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">Avg / Expense</p>
+            <h3 style="font-size: 1.8rem;">
+                {% if trip.expenses|length > 0 %}
+                    ${{ "%.2f"|format((trip.expenses|sum(attribute='amount')) / (trip.expenses|length)) }}
+                {% else %}
+                    $0
+                {% endif %}
+            </h3>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- Left: Add Expense -->
+        <div style="flex: 1;">
+            <div class="card" style="padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem;">Add Expense</h3>
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select name="category" id="category" class="form-control" required>
+                            <option value="" disabled selected>Select category</option>
+                            <option value="Transport">🚌 Transport</option>
+                            <option value="Accommodation">🏨 Accommodation</option>
+                            <option value="Food">🍽️ Food & Dining</option>
+                            <option value="Activities">🎟️ Activities</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Other">📦 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount ($)</label>
+                        <input type="number" step="0.01" id="amount" name="amount" class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description <span style="color: var(--text-muted); font-weight: 400;">(Optional)</span></label>
+                        <input type="text" id="description" name="description" class="form-control" placeholder="e.g., Taxi to hotel">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Add Expense</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Expense List -->
+        <div style="flex: 2;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Recent Expenses</h3>
+            {% if trip.expenses %}
+                {% for expense in trip.expenses|sort(attribute='date', reverse=True) %}
+                    <div class="card" style="padding: 1rem 1.5rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: 600;">{{ expense.category }}</span>
+                            {% if expense.description %}
+                                <span style="color: var(--text-muted); font-size: 0.9rem;"> · {{ expense.description }}</span>
+                            {% endif %}
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">{{ expense.date.strftime('%b %d, %Y') if expense.date else 'No date' }}</p>
+                        </div>
+                        <span style="font-weight: 700; font-size: 1.1rem;">${{ "%.2f"|format(expense.amount) }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card" style="padding: 3rem; text-align: center;">
+                    <p style="color: var(--text-muted);">No expenses recorded yet. Add your first one!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

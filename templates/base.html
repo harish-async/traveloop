@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Traveloop - Personalized Travel Planning Made Easy">
+    <title>{% block title %}Traveloop{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar">
+        <a href="{{ url_for('trips.dashboard') }}" class="navbar-brand">✈️ Traveloop</a>
+        
+        <div class="navbar-links">
+            <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('trips.my_trips') }}">My Trips</a>
+            <a href="{{ url_for('trips.create_trip') }}">Create Trip</a>
+            <a href="{{ url_for('profile.user_profile') }}">Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Logout</a>
+        </div>
+    </nav>
+    {% else %}
+    <nav class="navbar">
+        <a href="{{ url_for('auth.login') }}" class="navbar-brand">✈️ Traveloop</a>
+        <div class="navbar-links">
+            <a href="{{ url_for('auth.login') }}">Login</a>
+            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary" style="color: white; padding: 0.5rem 1.25rem; font-size: 0.9rem;">Sign Up</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

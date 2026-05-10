@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ trip.name }} - Traveloop{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('trips.my_trips') }}">My Trips</a>
+        <span class="separator">/</span>
+        <span>{{ trip.name }}</span>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+            <h2 style="font-size: 2rem; margin-bottom: 0.25rem;">{{ trip.name }}</h2>
+            <p style="color: var(--text-muted);">{{ trip.start_date.strftime('%B %d, %Y') }} — {{ trip.end_date.strftime('%B %d, %Y') }}</p>
+            {% if trip.description %}
+            <p style="margin-top: 0.5rem; font-size: 0.95rem;">{{ trip.description }}</p>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}" class="btn btn-primary" style="white-space: nowrap;">+ Add Stop</a>
+    </div>
+
+    <!-- Secondary Navigation -->
+    <div class="trip-nav">
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}" class="active">Itinerary</a>
+        <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}">Builder</a>
+        <a href="{{ url_for('features.budget', trip_id=trip.id) }}">Budget</a>
+        <a href="{{ url_for('features.checklist', trip_id=trip.id) }}">Checklist</a>
+        <a href="{{ url_for('features.notes', trip_id=trip.id) }}">Notes</a>
+    </div>
+
+    <!-- Timeline -->
+    {% if trip.stops %}
+        {% for stop in trip.stops|sort(attribute='start_date') %}
+            <div class="card" style="margin-bottom: 1rem; border-left: 3px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h4 style="font-size: 1.15rem;">{{ stop.city.name }}, {{ stop.city.country }}</h4>
+                    <span style="background: var(--bg-main); padding: 0.3rem 0.75rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border: 1px solid var(--border);">
+                        {{ stop.start_date.strftime('%b %d') }} — {{ stop.end_date.strftime('%b %d') }}
+                    </span>
+                </div>
+                
+                {% if stop.stop_activities %}
+                    {% for sa in stop.stop_activities %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-top: 1px solid var(--border-light);">
+                            <div>
+                                <span style="font-weight: 500;">{{ sa.activity.name }}</span>
+                                <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.5rem;">{{ sa.activity.type }}</span>
+                            </div>
+                            <span style="font-weight: 500; font-size: 0.9rem;">${{ "%.0f"|format(sa.activity.cost) }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--text-muted); font-size: 0.9rem; padding-top: 0.5rem; border-top: 1px solid var(--border-light);">No activities planned yet. <a href="{{ url_for('trips.search_activities', stop_id=stop.id) }}" style="font-weight: 600;">+ Add some</a></p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: var(--radius-lg); text-align: center;">
+            <h4 style="margin-bottom: 0.5rem;">Your itinerary is empty</h4>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Start building your trip by adding cities you want to visit.</p>
+            <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}" class="btn btn-primary">Add Your First Stop</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

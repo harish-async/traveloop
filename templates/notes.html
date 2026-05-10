@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Notes - {{ trip.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">{{ trip.name }}</a>
+        <span class="separator">/</span>
+        <span>Notes</span>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Trip Notes</h2>
+
+    <!-- Secondary Navigation -->
+    <div class="trip-nav">
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">Itinerary</a>
+        <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}">Builder</a>
+        <a href="{{ url_for('features.budget', trip_id=trip.id) }}">Budget</a>
+        <a href="{{ url_for('features.checklist', trip_id=trip.id) }}">Checklist</a>
+        <a href="{{ url_for('features.notes', trip_id=trip.id) }}" class="active">Notes</a>
+    </div>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- Left: Add Note -->
+        <div style="flex: 1;">
+            <div class="card" style="padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem;">Add a Note</h3>
+                <form method="POST">
+                    <div class="form-group">
+                        <textarea name="content" class="form-control" rows="6" placeholder="Flight numbers, hotel pins, memories, daily journals..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Save Note</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right: Notes List -->
+        <div style="flex: 2;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Your Notes <span style="color: var(--text-muted); font-weight: 400; font-size: 0.9rem;">({{ trip.notes|length }})</span></h3>
+            {% for note in trip.notes|sort(attribute='created_at', reverse=True) %}
+                <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 0.75rem; border-left: 3px solid var(--secondary);">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500;">{{ note.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    <p style="white-space: pre-wrap; line-height: 1.6;">{{ note.content }}</p>
+                </div>
+            {% else %}
+                <div class="card" style="padding: 3rem; text-align: center;">
+                    <p style="color: var(--text-muted);">No notes yet. Start journaling your trip!</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

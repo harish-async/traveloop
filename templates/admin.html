@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Traveloop{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">← Dashboard</a>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Platform Analytics</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+        <div class="card" style="text-align: center; padding: 2.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total Users</p>
+            <h1 style="font-size: 3.5rem; color: var(--primary);">{{ total_users }}</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">Active accounts</p>
+        </div>
+        
+        <div class="card" style="text-align: center; padding: 2.5rem;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total Trips</p>
+            <h1 style="font-size: 3.5rem; color: var(--secondary);">{{ total_trips }}</h1>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">Itineraries created</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

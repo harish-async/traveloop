@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Create New Trip - Traveloop{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">← Dashboard</a>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Create a New Trip</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Give your trip a name and set the dates. You can add destinations after.</p>
+
+    <div class="card" style="padding: 2rem;">
+        <form method="POST" action="{{ url_for('trips.create_trip') }}">
+            <div class="form-group">
+                <label for="name">Trip Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="e.g., Eurotrip Summer 2026" required>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description <span style="color: var(--text-muted); font-weight: 400;">(Optional)</span></label>
+                <textarea id="description" name="description" rows="3" class="form-control" placeholder="What is the purpose of this trip?"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Create Trip & Start Planning →</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

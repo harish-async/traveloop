@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Builder - {{ trip.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">{{ trip.name }}</a>
+        <span class="separator">/</span>
+        <span>Builder</span>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Trip Builder</h2>
+
+    <!-- Secondary Navigation -->
+    <div class="trip-nav">
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">Itinerary</a>
+        <a href="#" class="active">Builder</a>
+        <a href="{{ url_for('features.budget', trip_id=trip.id) }}">Budget</a>
+        <a href="{{ url_for('features.checklist', trip_id=trip.id) }}">Checklist</a>
+        <a href="{{ url_for('features.notes', trip_id=trip.id) }}">Notes</a>
+    </div>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- Left: Form -->
+        <div style="flex: 2;">
+            <div class="card" style="padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.15rem;">Add a New Destination</h3>
+                
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Select Country</label>
+                        <select id="countrySelect" class="form-control" required>
+                            <option value="" disabled selected>Loading countries...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city_id">Select City</label>
+                        <select id="city_id" name="city_id" class="form-control" required disabled>
+                            <option value="" disabled selected>Select a country first</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="start_date">Arrival Date</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="end_date">Departure Date</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Add to Itinerary →</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right: Current Stops -->
+        <div style="flex: 1; min-width: 260px;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Current Stops <span style="color: var(--text-muted); font-weight: 400;">({{ trip.stops|length }})</span></h3>
+            {% if trip.stops %}
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for stop in trip.stops|sort(attribute='order_index') %}
+                    <div class="card" style="padding: 1rem; position: relative;">
+                        <form method="POST" action="{{ url_for('trips.delete_stop', trip_id=trip.id, stop_id=stop.id) }}" onsubmit="return confirm('Remove this stop and all its activities?');" style="position: absolute; top: 0.75rem; right: 0.75rem; margin: 0;">
+                            <button type="submit" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; padding: 0;" title="Remove Stop">✕</button>
+                        </form>
+                        <h4 style="font-size: 1rem; margin-bottom: 0.25rem; padding-right: 1.5rem;">{{ stop.city.name }}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ stop.city.country }} · {{ stop.start_date.strftime('%b %d') }} — {{ stop.end_date.strftime('%b %d') }}</p>
+                        <a href="{{ url_for('trips.search_activities', stop_id=stop.id) }}" style="font-size: 0.85rem; font-weight: 600;">+ Add Activity</a>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="card" style="padding: 2rem; text-align: center;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">No stops added yet. Use the form to add your first destination.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countrySelect = document.getElementById('countrySelect');
+    const citySelect = document.getElementById('city_id');
+
+    fetch('/api/countries')
+        .then(response => response.json())
+        .then(data => {
+            countrySelect.innerHTML = '<option value="" disabled selected>Choose a Country</option>';
+            data.countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                countrySelect.appendChild(option);
+            });
+        });
+
+    countrySelect.addEventListener('change', function() {
+        const selectedCountry = this.value;
+        citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
+        citySelect.disabled = true;
+
+        fetch(`/api/cities/${encodeURIComponent(selectedCountry)}`)
+            .then(response => response.json())
+            .then(data => {
+                citySelect.innerHTML = '<option value="" disabled selected>Choose a City</option>';
+                data.cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = `${city.name} (${city.cost_index})`;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = false;
+            });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Checklist - {{ trip.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">{{ trip.name }}</a>
+        <span class="separator">/</span>
+        <span>Checklist</span>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Packing Checklist</h2>
+
+    <!-- Secondary Navigation -->
+    <div class="trip-nav">
+        <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}">Itinerary</a>
+        <a href="{{ url_for('trips.trip_builder', trip_id=trip.id) }}">Builder</a>
+        <a href="{{ url_for('features.budget', trip_id=trip.id) }}">Budget</a>
+        <a href="{{ url_for('features.checklist', trip_id=trip.id) }}" class="active">Checklist</a>
+        <a href="{{ url_for('features.notes', trip_id=trip.id) }}">Notes</a>
+    </div>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <!-- Left: Add Item -->
+        <div style="flex: 1;">
+            <div class="card" style="padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem;">Add Item</h3>
+                <form method="POST">
+                    <input type="hidden" name="action" value="add">
+                    <div class="form-group">
+                        <label for="item_name">Item Name</label>
+                        <input type="text" id="item_name" name="item_name" class="form-control" placeholder="e.g., Passport, Charger" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Add to List</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Checklist -->
+        <div style="flex: 2;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">
+                Your Items
+                {% if trip.checklist_items|length > 0 %}
+                    <span style="color: var(--text-muted); font-weight: 400; font-size: 0.9rem;">({{ trip.checklist_items|selectattr('is_packed')|list|length }} / {{ trip.checklist_items|length }} packed)</span>
+                {% endif %}
+            </h3>
+            {% if trip.checklist_items %}
+                {% for item in trip.checklist_items %}
+                    <div class="card" style="padding: 0.75rem 1.25rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <form method="POST" style="margin: 0;">
+                                <input type="hidden" name="action" value="toggle">
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" style="background: {{ 'var(--secondary)' if item.is_packed else 'none' }}; border: 2px solid {{ 'var(--secondary)' if item.is_packed else 'var(--border)' }}; width: 22px; height: 22px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    {% if item.is_packed %}<span style="color: white; font-size: 0.75rem;">✓</span>{% endif %}
+                                </button>
+                            </form>
+                            <span style="{{ 'text-decoration: line-through; color: var(--text-muted);' if item.is_packed else '' }}">{{ item.item_name }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card" style="padding: 3rem; text-align: center;">
+                    <p style="color: var(--text-muted);">No items in your checklist yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

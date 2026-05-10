@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}My Trips - Traveloop{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 2rem; margin-bottom: 0.25rem;">My Trips</h2>
+        <p style="color: var(--text-muted);">A complete history of all your adventures.</p>
+    </div>
+    <a href="{{ url_for('trips.create_trip') }}" class="btn btn-primary">+ New Trip</a>
+</div>
+
+<div class="grid-cards">
+    {% if trips %}
+        {% for trip in trips %}
+            <div class="card">
+                <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem;">{{ trip.name }}</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">{{ trip.start_date.strftime('%b %d, %Y') }} — {{ trip.end_date.strftime('%b %d, %Y') }}</p>
+                
+                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    <span>📍 {{ trip.stops|length }} stops</span>
+                    <span>💰 ${{ "%.0f"|format(trip.expenses|sum(attribute='amount')) }}</span>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+                    <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}" class="btn btn-outline" style="flex: 1; text-align: center; padding: 0.6rem; font-size: 0.9rem;">View →</a>
+                    <form method="POST" action="{{ url_for('trips.delete_trip', trip_id=trip.id) }}" onsubmit="return confirm('Are you sure you want to permanently delete this trip? This cannot be undone.');" style="margin: 0;">
+                        <button type="submit" class="btn btn-outline" style="color: var(--danger); border-color: var(--danger); padding: 0.6rem 0.8rem; font-size: 0.9rem;" title="Delete Trip">🗑️</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="grid-column: 1 / -1; padding: 4rem 2rem; border: 1px dashed var(--border); border-radius: var(--radius-lg); text-align: center;">
+            <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 1.05rem;">You haven't created any trips yet.</p>
+            <a href="{{ url_for('trips.create_trip') }}" class="btn btn-primary">Create Your First Trip</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Profile - Traveloop{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">← Dashboard</a>
+    </div>
+
+    <div style="display: flex; gap: 2.5rem; align-items: flex-start;">
+        <!-- Left: Profile Card -->
+        <div style="flex: 1; min-width: 280px;">
+            <div class="card" style="padding: 2rem; text-align: center;">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); margin: 0 auto 1.25rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: 700;">
+                    {{ user.first_name[0] }}{{ user.last_name[0] }}
+                </div>
+                <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">📍 {{ user.city or 'Unknown City' }}, {{ user.country or 'Unknown' }}</p>
+                
+                <div style="text-align: left; background: var(--bg-main); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;">About</p>
+                    <p style="font-size: 0.95rem; line-height: 1.6;">{{ user.bio or 'No bio provided.' }}</p>
+                </div>
+                
+                <a href="{{ url_for('profile.settings') }}" class="btn btn-outline btn-block">Edit Profile & Settings</a>
+            </div>
+        </div>
+        
+        <!-- Right: Trip History -->
+        <div style="flex: 2;">
+            <!-- Future Trips -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3 style="margin-bottom: 1rem; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--secondary);"></span>
+                    Upcoming Trips
+                </h3>
+                {% if future_trips %}
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% for trip in future_trips %}
+                        <div class="card" style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--secondary);">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.15rem;">{{ trip.name }}</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">{{ trip.start_date.strftime('%b %d, %Y') }}</p>
+                            </div>
+                            <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">View →</a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="card" style="padding: 2rem; text-align: center;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">No upcoming trips. <a href="{{ url_for('trips.create_trip') }}" style="font-weight: 600;">Plan one now →</a></p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Past Trips -->
+            <div>
+                <h3 style="margin-bottom: 1rem; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted);"></span>
+                    Past Trips
+                </h3>
+                {% if past_trips %}
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% for trip in past_trips %}
+                        <div class="card" style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; opacity: 0.7;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.15rem;">{{ trip.name }}</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">{{ trip.start_date.strftime('%b %d, %Y') }}</p>
+                            </div>
+                            <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Journal</a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="card" style="padding: 2rem; text-align: center;">
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">No past trips yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

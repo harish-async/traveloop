@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Traveloop{% endblock %}
+
+{% block content %}
+<div class="hero-banner" style="margin-bottom: 3rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, {{ current_user.first_name }} 👋</h1>
+    <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 500px; margin: 0 auto;">Where to next? Start planning your next adventure today.</p>
+    <a href="{{ url_for('trips.create_trip') }}" class="btn btn-primary" style="margin-top: 1.5rem;">+ Plan New Trip</a>
+</div>
+
+<div class="section-header">
+    <h3>Upcoming Trips</h3>
+    <a href="{{ url_for('trips.my_trips') }}" style="font-weight: 500; font-size: 0.95rem;">View all →</a>
+</div>
+
+<div class="grid-cards" style="margin-bottom: 3rem;">
+    {% if upcoming_trips %}
+        {% for trip in upcoming_trips %}
+            <div class="card">
+                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">{{ trip.name }}</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem;">{{ trip.start_date.strftime('%b %d, %Y') }} — {{ trip.end_date.strftime('%b %d, %Y') }}</p>
+                <div style="display: flex; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    <span>📍 {{ trip.stops|length }} stops</span>
+                </div>
+                <a href="{{ url_for('trips.view_trip', trip_id=trip.id) }}" class="btn btn-outline" style="align-self: flex-start; padding: 0.5rem 1.25rem; font-size: 0.9rem;">View Itinerary →</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="grid-column: 1 / -1; padding: 3rem; border: 1px dashed var(--border); border-radius: var(--radius-lg); text-align: center;">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">You have no upcoming trips.</p>
+            <a href="{{ url_for('trips.create_trip') }}" class="btn btn-primary">Create Your First Trip</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="section-header">
+    <h3>Explore Places</h3>
+    <a href="{{ url_for('trips.search_cities') }}" style="font-weight: 500; font-size: 0.95rem;">Browse all →</a>
+</div>
+
+<div class="grid-cards">
+    {% if recommended_cities %}
+        {% for city in recommended_cities %}
+            <div class="card">
+                <div style="background: linear-gradient(135deg, #EFF6FF, #F0FDF4); height: 120px; border-radius: var(--radius-sm); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                    <span style="font-size: 2.5rem;">🏙️</span>
+                </div>
+                <h4 style="margin-bottom: 0.25rem;">{{ city.name }}</h4>
+                <p style="font-size: 0.9rem;">{{ city.country }} · {{ city.cost_index }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

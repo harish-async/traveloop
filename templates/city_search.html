@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Search Cities - Traveloop{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div class="breadcrumb">
+        <a href="{{ url_for('trips.dashboard') }}">← Dashboard</a>
+    </div>
+
+    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Explore Cities</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Discover destinations from our database of 140,000+ cities worldwide.</p>
+
+    <form method="GET" action="{{ url_for('trips.search_cities') }}" style="display: flex; gap: 0.75rem; margin-bottom: 2rem;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by city name..." class="form-control" style="flex: 1;">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="grid-cards">
+        {% if cities %}
+            {% for city in cities %}
+                <div class="card">
+                    <h4 style="margin-bottom: 0.25rem;">{{ city.name }}</h4>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">{{ city.country }} · {{ city.cost_index }}</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">{{ city.description }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; padding: 3rem; text-align: center;">
+                <p style="color: var(--text-muted);">No cities found matching "{{ query }}". Try a different search.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
